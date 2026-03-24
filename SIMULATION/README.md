@@ -49,7 +49,16 @@ This is the reverse of Forward Kinematics. When we physically grasp the real rob
 
 **Commands to run the Digital Twin:**
 ```bash
-source ~/colcon_ws/install/setup.bash
+# 1. Navigate to workspace
+cd ~/colcon_ws
+
+# 2. Build ONLY if the 'install' folder is missing or you changed the code
+colcon build 
+
+# 3. Source the setup file (MUST do this in every new terminal)
+source install/setup.bash
+
+# 4. Launch the digital twin
 ros2 launch mycobot_280pi mycobot_follow.launch.py
 ```
 
