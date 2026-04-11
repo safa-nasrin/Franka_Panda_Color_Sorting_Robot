@@ -16,11 +16,11 @@ Choose one of the following methods to access the Raspberry Pi:
   3. Run the following command (replace with your robot's actual IP):
      `ssh pi@<ROBOT_IP_ADDRESS>`
 
-### 2. Gripper Servo Wiring
-To ensure the gripper opens and closes correctly, connect the 3-wire servo motor to the GPIO pins exactly as follows:
+### 2. Gripper Servo Wiring (External Battery Setup)
+To ensure the gripper opens and closes correctly without overloading the Raspberry Pi, connect the 3-wire servo motor using a breadboard and an external battery:
 
 * 🟡 **Yellow Wire (Signal):** Connect to your PWM GPIO pin (e.g., **GPIO 4** or **GPIO 18**). Sends control signals to the servo.
-* 🔴 **Red Wire (Power):** Connect to a **5V Pin** (Pin 2 or 4). Supplies the necessary power.
-* 🟤 **Brown Wire (Ground):** Connect to any **GND Pin** (e.g., Pin 6). Completes the common ground connection.
+* 🔴 **Red Wire (Power):** Connect to the positive terminal of the **6V Li-Poly RC Battery**.
+* 🟤 **Brown Wire (Ground):** Connect to the common ground rail on the **breadboard**. *(Note: You must also connect a Raspberry Pi GND pin and the battery's negative terminal to this same breadboard rail to complete the circuit).*
 
-> ⚠️ **Warning:** Always verify GPIO pins based on your specific configuration before powering on.
+> ⚠️ **Warning:** Do NOT try to connect more than 6V to the servo, as it will cause permanent damage. Never connect the 6V battery directly to the Raspberry Pi pins.
