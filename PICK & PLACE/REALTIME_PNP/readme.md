@@ -67,6 +67,13 @@ python3 src/REALTIME_PNP/pick_place.py
 ```
 ---
 
+Flask-based stream with real-time detection
+<img width="1920" height="1080" alt="Screenshot from 2026-04-11 12-15-59" src="https://github.com/user-attachments/assets/95182468-26b8-4fd4-acce-a9615d18bc48" />
+
+Marker-based cube tracking in ROS 2
+<img width="1920" height="1080" alt="Screenshot from 2026-04-11 12-19-00" src="https://github.com/user-attachments/assets/6d567ac8-de86-4077-a658-716004ba6ee2" />
+
+
 ## 🔮 Future Scope
 1. **Voice-Controlled Manipulation:** Integrating NLP to trigger pick-and-place actions via voice commands.
 2. **Cloud-Based Remote Digital Twin:** Enabling remote control and monitoring over a WAN using secure tunneling.
