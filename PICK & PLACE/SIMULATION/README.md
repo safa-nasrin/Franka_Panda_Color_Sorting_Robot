@@ -32,6 +32,8 @@ Before executing AI vision commands, we established a bidirectional simulation e
 *(Select Option 1 in the Quick Start Menu)*
 
 This process allows us to control the physical robot directly from the computer. By adjusting the individual joint angles using the sliders inside the **Joint State Publisher GUI** window in RViz, the physical MyCobot arm receives the kinematics data and moves to the exact corresponding position in real-time.
+![joint_state_publisher](https://github.com/user-attachments/assets/3019955c-a0d5-422b-9d98-73ab36bac575)
+![forward kinematics](https://github.com/user-attachments/assets/ad4a2ac1-b64e-439f-b332-8b689f714170)
 
 ### B. Digital Twin (Robot → Screen)
 *(Select Option 2 in the Quick Start Menu)*
