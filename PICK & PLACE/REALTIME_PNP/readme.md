@@ -11,20 +11,18 @@ This phase integrates computer vision (OpenCV) with hardware kinematics to allow
 ### 📐 The Vision-to-Hardware Calibration Workflow
 To ensure millimeter-perfect accuracy, we implemented a precise 4-point perspective transformation and physical offset tuning. 
 
-**The Setup & Calibration Process:**
-1. **Camera Orientation Check:** We verified the live feed alignment. Because the physical camera is mounted sideways, a 90-degree counter-clockwise rotation (`cv2.ROTATE_90_COUNTERCLOCKWISE`) is applied directly in the code to perfectly align the software's perspective with the robot's physical workspace.
-2. **Pixel Extraction:** We captured the exact 2D pixel coordinates `(x, y)` of 4 boundary points directly from the camera's live feed.
-3. **Hardware Mapping:** We physically jogged the robot arm to those exact 4 boundary locations in the real world and recorded the physical mechanical coordinates `(mm)`.
-4. **Integration Verification:** We linked these two datasets using `cv2.getPerspectiveTransform` and ran a standalone test script to command the robot to those calculated points, verifying if it moved to the exact physical locations.
-5. **Offset Tuning:** If the robot slightly missed the true physical targets due to camera mounting angles or lens distortion, we calculated and applied manual X/Y offsets to guarantee absolute precision.
-6. **Code Integration:** The finalized points and tuned offsets were permanently integrated into the main control script.
+1. **Camera Alignment:** Applied a 90° CCW software rotation (`cv2.ROTATE_90_COUNTERCLOCKWISE`) to correct the sideways physical camera mount.
+2. **Pixel Extraction:** Recorded the exact 2D `(x, y)` pixel coordinates of 4 boundary points from the live feed.
+3. **Hardware Mapping:** Jogged the physical robot arm to those 4 boundary locations and recorded their real-world `(mm)` coordinates.
+4. **Integration Verification:** Linked the pixel and hardware datasets using `cv2.getPerspectiveTransform` and tested movement accuracy.
+5. **Offset Tuning:** Applied manual X/Y offsets to compensate for lens distortion and mounting angles.
+6. **Code Integration:** Hardcoded the finalized matrices and tuned offsets directly into the main script.
 
 ### ⚙️ Key Technical Features
-* **Flask Web Interface:** Streams a live, annotated MJPEG video feed to a web browser, allowing users to click buttons to trigger "Pick Red", "Pick Blue", "Home", or "Unlock" commands via ROS 2 topics.
-* **Live Digital Twin Sync:** As the physical robot moves to pick up the real objects, the script actively publishes `JointState` and `MarkerArray` data. This renders the cubes, containers, and arm movements inside RViz in real-time.
-* **Smart Trajectory Routing:** Implements distinct kinematic pathways based on object location. If a cube is located in the "Bottom Zone" (close to the robot base), the arm folds into a designated "Safe Tucked Pose" before dropping down to prevent physical collisions with itself or the camera mount.
-* **Shape & Color Processing:** Uses HSV masking and contour analysis to differentiate between the target cubes (solid objects) and the placement containers (hollow boundaries), calculating the correct rotation angles for the gripper to grasp the blocks cleanly.
-
+* **Flask Web Interface:** Streams a live, annotated MJPEG video feed with browser buttons that trigger ROS 2 commands (e.g., "Pick Red", "Home").
+* **Live Digital Twin Sync:** Actively publishes `JointState` and `MarkerArray` data to mirror the physical arm, cubes, and bins in RViz in real-time.
+* **Smart Trajectory Routing:** Adapts kinematic paths based on object location, utilizing a "Safe Tucked Pose" to prevent collisions when grabbing objects near the base.
+* **Shape & Color Processing:** Uses HSV masking and contour analysis to distinguish solid cubes from hollow bins and calculates precise gripper rotation angles.
 ---
 
 ## 📦 Setup Instructions for Evaluator
@@ -73,3 +71,5 @@ python3 src/REALTIME_PNP/pick_place.py
 1. **Voice-Controlled Manipulation:** Integrating NLP to trigger pick-and-place actions via voice commands.
 2. **Cloud-Based Remote Digital Twin:** Enabling remote control and monitoring over a WAN using secure tunneling.
 3. **Autonomous Defect Inspection:** Adding a quality control step where the AI inspects the object for damage before placement.
+4. **Dynamic Target Interception:** Upgrading the vision pipeline with predictive kinematics to accurately track and pick moving objects, such as items on a motorized conveyor belt.
+5. **Multi-Arm Collaboration:** Expanding the ROS 2 architecture to synchronize a secondary robot arm, allowing them to hand off objects or sort collaboratively within a shared workspace without         collisions.
