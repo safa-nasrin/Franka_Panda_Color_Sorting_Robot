@@ -3,6 +3,20 @@
 ## 📖 Project Overview
 A vision-guided manipulation system where objects are detected using a camera, localized using pose estimation, and picked using a cobot arm in both simulation and real hardware. Integrates ROS 2, OpenCV, kinematics, and real-time robot control to simulate industrial automation workflows.
 
+![Digital Twin](https://github.com/user-attachments/assets/a45fdbc6-46da-4a9f-a99e-7012f8c2802c)
+
+<div align="center">
+  
+  ![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
+  ![ROS 2](https://img.shields.io/badge/ROS_2-Foxy-22314E?style=for-the-badge&logo=ros&logoColor=white)
+  ![Python](https://img.shields.io/badge/Python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+  ![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)
+  ![Raspberry Pi](https://img.shields.io/badge/Raspberry_Pi-A22846?style=for-the-badge&logo=raspberry-pi&logoColor=white)
+
+</div>
+
+---
+
 ## ⚙️ Environment Setup & Installation
 **OS & ROS Version:** Ubuntu 20.04 | ROS 2 Foxy
 
