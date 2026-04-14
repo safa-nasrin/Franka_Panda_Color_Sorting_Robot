@@ -1,22 +1,29 @@
 
-# 🤖 NeoFlux: Vision-Based Pick and Place Robot (MyCobot 280 Pi)
+# 🤖 NeoFlux: Vision-Based Pick and Place Robot (MyCobot 280 Pi) with System Awareness Bot
 
-This repository contains the core control software for the NeoFlux vision-guided robotic sorting system. It uses OpenCV for color and contour detection, an automated Perspective Transform matrix for precise real-world coordinate mapping, and ROS 2 for a live 3D Digital Twin visualization in RViz.
-
+This repository contains the core control software for the NeoFlux vision-guided robotic sorting system. It uses OpenCV for color and contour detection, an automated Perspective Transform matrix for precise real-world coordinate mapping, and ROS 2 for a live 3D Digital Twin visualization in RViz. Additionally, it features an integrated AI chatbot built with Llama-3.1 via the Groq API for intelligent system interaction.
 ---
 
-## 🧠 Core Implementation: Phase 2 - Real-Time AI Pick & Place
+## 🧠 Core Implementation: Real-Time AI Pick & Place with Digital Twin
 This phase integrates computer vision (OpenCV) with hardware kinematics to allow the physical MyCobot to autonomously detect, target, and manipulate physical objects in real-time, controlled via a local Flask web interface.
+
+## 💬 System Awareness Chatbot Implementation
+We have implemented a specialized AI chatbot that possesses deep "System Awareness." It is directly interfaced with the robot's backend, allowing it to monitor:
+
+* **Real-time Joint Angles & X/Y/Z Coordinates.
+* **Current Hardware Status (e.g., Online/Offline, Task Progress).
+* **General Knowledge: Beyond robotics, you can ask it any question regarding physics, biology, or coding, and it will respond instantly.
 
 ### 📐 The Vision-to-Hardware Calibration Workflow
 To ensure millimeter-perfect accuracy, we implemented a precise 4-point perspective transformation and physical offset tuning. 
 
 1. **Camera Alignment:** Applied a 90° CCW software rotation (`cv2.ROTATE_90_COUNTERCLOCKWISE`) to correct the sideways physical camera mount.
-2. **Pixel Extraction:** Recorded the exact 2D `(x, y)` pixel coordinates of 4 boundary points from the live feed.
-3. **Hardware Mapping:** Jogged the physical robot arm to those 4 boundary locations and recorded their real-world `(mm)` coordinates.
-4. **Integration Verification:** Linked the pixel and hardware datasets using `cv2.getPerspectiveTransform` and tested movement accuracy.
-5. **Offset Tuning:** Applied manual X/Y offsets to compensate for lens distortion and mounting angles.
-6. **Code Integration:** Hardcoded the finalized matrices and tuned offsets directly into the main script.
+2. **NeoFlux Chatbot: A "System-Aware" assistant powered by Llama-3.1/Groq that provides live telemetry data and answers any general-purpose questions.
+3. **Pixel Extraction:** Recorded the exact 2D `(x, y)` pixel coordinates of 4 boundary points from the live feed.
+4. **Hardware Mapping:** Jogged the physical robot arm to those 4 boundary locations and recorded their real-world `(mm)` coordinates.
+5. **Integration Verification:** Linked the pixel and hardware datasets using `cv2.getPerspectiveTransform` and tested movement accuracy.
+6. **Offset Tuning:** Applied manual X/Y offsets to compensate for lens distortion and mounting angles.
+7. **Code Integration:** Hardcoded the finalized matrices and tuned offsets directly into the main script.
 
 ### ⚙️ Key Technical Features
 * **Flask Web Interface:** Streams a live, annotated MJPEG video feed with browser buttons that trigger ROS 2 commands (e.g., "Pick Red", "Home").
