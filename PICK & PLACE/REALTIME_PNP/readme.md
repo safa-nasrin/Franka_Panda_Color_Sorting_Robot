@@ -1,4 +1,4 @@
-# 🤖 NeoFlux: Vision-Based Pick and Place Robot (MyCobot 280 Pi) with System Awareness Bot
+# 🤖 NeoFlux: Vision-Based AI Robot with System Awareness
 
 This repository contains the core control software for the NeoFlux vision-guided robotic sorting system. It uses OpenCV for color and contour detection, an automated Perspective Transform matrix for precise real-world coordinate mapping, and ROS 2 for a live 3D Digital Twin visualization in RViz. Additionally, it features an integrated AI chatbot built with Llama-3.1 via the Groq API for intelligent system interaction.
 
