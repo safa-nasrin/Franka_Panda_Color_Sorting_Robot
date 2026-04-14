@@ -10,15 +10,15 @@ This phase integrates computer vision (OpenCV) with hardware kinematics to allow
 ## 💬 System Awareness Chatbot Implementation
 We have implemented a specialized AI chatbot that possesses deep "System Awareness." It is directly interfaced with the robot's backend, allowing it to monitor:
 
-* **Real-time Joint Angles & X/Y/Z Coordinates.
-* **Current Hardware Status (e.g., Online/Offline, Task Progress).
-* **General Knowledge: Beyond robotics, you can ask it any question regarding physics, biology, or coding, and it will respond instantly.
+* Real-time Joint Angles & X/Y/Z Coordinates.
+* Current Hardware Status (e.g., Online/Offline, Task Progress).
+* General Knowledge: Beyond robotics, you can ask it any question regarding physics, biology, or coding, and it will respond instantly.
 
 ### 📐 The Vision-to-Hardware Calibration Workflow
 To ensure millimeter-perfect accuracy, we implemented a precise 4-point perspective transformation and physical offset tuning. 
 
 1. **Camera Alignment:** Applied a 90° CCW software rotation (`cv2.ROTATE_90_COUNTERCLOCKWISE`) to correct the sideways physical camera mount.
-2. **NeoFlux Chatbot: A "System-Aware" assistant powered by Llama-3.1/Groq that provides live telemetry data and answers any general-purpose questions.
+2. NeoFlux Chatbot: A "System-Aware" assistant powered by Llama-3.1/Groq that provides live telemetry data and answers any general-purpose questions.
 3. **Pixel Extraction:** Recorded the exact 2D `(x, y)` pixel coordinates of 4 boundary points from the live feed.
 4. **Hardware Mapping:** Jogged the physical robot arm to those 4 boundary locations and recorded their real-world `(mm)` coordinates.
 5. **Integration Verification:** Linked the pixel and hardware datasets using `cv2.getPerspectiveTransform` and tested movement accuracy.
