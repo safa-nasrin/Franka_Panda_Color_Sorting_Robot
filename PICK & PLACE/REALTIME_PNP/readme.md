@@ -1,4 +1,5 @@
 # 🤖 NeoFlux: Vision-Based AI Robot with System Awareness
+<img width="2816" height="1536" alt="Gemini_Generated_Image_jue2tyjue2tyjue2" src="https://github.com/user-attachments/assets/4e50f590-2d67-4e75-9d23-f89e63124925" />
 
 This repository contains the core control software for the NeoFlux vision-guided robotic sorting system. It uses OpenCV for color and contour detection, an automated Perspective Transform matrix for precise real-world coordinate mapping, and ROS 2 for a live 3D Digital Twin visualization in RViz. Additionally, it features an integrated AI chatbot built with Llama-3.1 via the Groq API for intelligent system interaction.
 
