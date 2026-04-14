@@ -36,7 +36,7 @@ CORS(app)
 global_frame = None
 
 # --- GROQ API (FREE, FAST, WORKS IN INDIA) ---
-GROQ_API_KEY = "YOUR_QROK_API_KEY"   # <-- ONLY LINE YOU NEED TO CHANGE
+GROQ_API_KEY = "YOUR_QROQ_API_KEY"   # <-- ONLY LINE YOU NEED TO CHANGE
 GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL   = "llama-3.1-8b-instant"           # Free model: 14,400 req/day
 
