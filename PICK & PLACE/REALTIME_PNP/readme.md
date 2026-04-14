@@ -1,7 +1,7 @@
-
 # 🤖 NeoFlux: Vision-Based Pick and Place Robot (MyCobot 280 Pi) with System Awareness Bot
 
 This repository contains the core control software for the NeoFlux vision-guided robotic sorting system. It uses OpenCV for color and contour detection, an automated Perspective Transform matrix for precise real-world coordinate mapping, and ROS 2 for a live 3D Digital Twin visualization in RViz. Additionally, it features an integrated AI chatbot built with Llama-3.1 via the Groq API for intelligent system interaction.
+
 ---
 
 ## 🧠 Core Implementation: Real-Time AI Pick & Place with Digital Twin
@@ -18,7 +18,7 @@ We have implemented a specialized AI chatbot that possesses deep "System Awarene
 To ensure millimeter-perfect accuracy, we implemented a precise 4-point perspective transformation and physical offset tuning. 
 
 1. **Camera Alignment:** Applied a 90° CCW software rotation (`cv2.ROTATE_90_COUNTERCLOCKWISE`) to correct the sideways physical camera mount.
-2. NeoFlux Chatbot: A "System-Aware" assistant powered by Llama-3.1/Groq that provides live telemetry data and answers any general-purpose questions.
+2. **NeoFlux Chatbot:** A "System-Aware" assistant powered by Llama-3.1/Groq that provides live telemetry data and answers any general-purpose questions.
 3. **Pixel Extraction:** Recorded the exact 2D `(x, y)` pixel coordinates of 4 boundary points from the live feed.
 4. **Hardware Mapping:** Jogged the physical robot arm to those 4 boundary locations and recorded their real-world `(mm)` coordinates.
 5. **Integration Verification:** Linked the pixel and hardware datasets using `cv2.getPerspectiveTransform` and tested movement accuracy.
@@ -30,6 +30,7 @@ To ensure millimeter-perfect accuracy, we implemented a precise 4-point perspect
 * **Live Digital Twin Sync:** Actively publishes `JointState` and `MarkerArray` data to mirror the physical arm, cubes, and bins in RViz in real-time.
 * **Smart Trajectory Routing:** Adapts kinematic paths based on object location, utilizing a "Safe Tucked Pose" to prevent collisions when grabbing objects near the base.
 * **Shape & Color Processing:** Uses HSV masking and contour analysis to distinguish solid cubes from hollow bins and calculates precise gripper rotation angles.
+
 ---
 
 ## 📦 Setup Instructions for Evaluator
@@ -41,7 +42,6 @@ Open your terminal in this project directory and run the following commands:
 ```bash
 chmod +x setup.sh
 ./setup.sh
-```
 
 ## 🚀 How to Run the Project
 To execute this phase smoothly, we use an automated launch script (`run_project.sh`) that safely sequences the ROS 2 bridge, builds the Digital Twin workspace, and boots the main Python AI script.
