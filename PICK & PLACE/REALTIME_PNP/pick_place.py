@@ -11,13 +11,14 @@ conversational AI chatbot (Llama-3.1/Groq) with physical hardware, featuring:
 =============================================================================
 """
 
+  
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 from sensor_msgs.msg import JointState
 from visualization_msgs.msg import Marker, MarkerArray
 from pymycobot.mycobot import MyCobot
-import RPi.GPIO as GPIO
+import serial # Added for Arduino Vacuum Gripper
 import cv2
 import numpy as np
 import time
@@ -29,16 +30,11 @@ from flask import Flask, Response, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 # ==========================================
-# --- FLASK & REST API SETUP ---
+# --- GROQ API SETUP ---
 # ==========================================
-app = Flask(__name__, static_folder=".")
-CORS(app)
-global_frame = None
-
-# --- GROQ API (FREE, FAST, WORKS IN INDIA) ---
-GROQ_API_KEY = "YOUR_QROQ_API_KEY"   # <-- ONLY LINE YOU NEED TO CHANGE
+GROQ_API_KEY = "YOUR_GROQ_API_KEY"
 GROQ_URL     = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL   = "llama-3.1-8b-instant"           # Free model: 14,400 req/day
+GROQ_MODEL   = "llama-3.1-8b-instant"
 
 robotics_prompt = """
 You are the NeoFlux System Assistant, a Senior Robotics & Electronics Engineer.
@@ -47,12 +43,20 @@ Your job is to provide highly accurate, detailed, and expert-level advice.
 CRITICAL RULES:
 1. MEMORY: You have a conversational memory. Reply naturally to follow-up questions.
 2. BE SMART & CRITICAL: Warn the user if they suggest dangerous electrical connections.
-3. SCANNABLE FORMATTING: Use bullet points (-). NEVER write massive walls of text.
-4. CONTEXT: You specialize in ROS 2, OpenCV, Raspberry Pi GPIO, MyCobot arms, and power electronics.
+3. SCANNABLE FORMATTING: Use plain text, bullet points (-), and short paragraphs. NEVER use HTML tags
+4. CONTEXT: You specialize in ROS 2, OpenCV, Arduino Serial, MyCobot arms, and pneumatics.
 """
 
 chat_history = []
-print("✅ GROQ AI BRIDGE: ONLINE (Free tier — 14,400 req/day, works in India)")
+print("✅ GROQ AI BRIDGE: ONLINE (Llama-3.1)")
+
+# ==========================================
+# --- FLASK & REST API SETUP ---
+# ==========================================
+app = Flask(__name__, static_folder=".")
+CORS(app)
+global_frame = None
+
 
 # ==========================================
 # --- NEOFLUX ROBOT BRAIN ---
@@ -95,12 +99,18 @@ class NeoFluxBrain(Node):
             except Exception:
                 pass
 
-        # Servo Setup (Pin 4)
-        GPIO.setwarnings(False)
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(4, GPIO.OUT)
-        self.pwm = GPIO.PWM(4, 50)
-        self.pwm.start(0)
+        # ================================================
+        # Arduino Vacuum Setup (Replaced GPIO Servo)
+        # ================================================
+        self.arduino_port = '/dev/ttyACM0'
+        self.arduino_baud = 9600
+        try:
+            self.gripper_serial = serial.Serial(self.arduino_port, self.arduino_baud, timeout=1)
+            time.sleep(2)  # allow Arduino reset
+            self.get_logger().info("Serial connected to Arduino Vacuum Pump")
+        except Exception as e:
+            self.get_logger().error(f"Failed to connect Arduino Vacuum: {e}")
+            self.gripper_serial = None
 
         # ROS Topics
         self.subscription = self.create_subscription(
@@ -123,8 +133,8 @@ class NeoFluxBrain(Node):
 
         pts_robot = np.array([
             [274.9, -113.9],
-            [292.1,   63.4],
-            [125.5,   79.0],
+            [292.1,  63.4],
+            [125.5,  79.0],
             [112.2, -115.5]
         ], dtype="float32")
 
@@ -274,13 +284,20 @@ class NeoFluxBrain(Node):
 
         self.marker_pub.publish(marker_array)
 
-    # ── GRIPPER ──────────────────────────────────────────────────────────────
+    # ── GRIPPER (Arduino Serial Vacuum Pump) ─────────────────────────────────
     def control_servo_smooth(self, action: str):
-        target_duty = 4.0 if action == "OPEN" else 9.0
         self.gripper_open = (action == "OPEN")
-        self.pwm.ChangeDutyCycle(target_duty)
+        
+        if self.gripper_serial:
+            if action == "OPEN":
+                self.gripper_serial.write(b'r')   # Release
+                self.get_logger().info("Vacuum Pump: RELEASE (r)")
+            else:
+                self.gripper_serial.write(b's')   # Suction (Close)
+                self.get_logger().info("Vacuum Pump: SUCTION (s)")
+        
+        # Delay allows the vacuum time to build suction or drop the object
         time.sleep(0.5)
-        self.pwm.ChangeDutyCycle(0)
 
     # ── DETECTION ────────────────────────────────────────────────────────────
     def detect_and_draw(self, frame, mask, color_name):
@@ -358,7 +375,7 @@ class NeoFluxBrain(Node):
                 mask_blue = cv2.dilate(cv2.morphologyEx(
                     mask_blue, cv2.MORPH_OPEN, kernel), None, iterations=2)
 
-                   # 1. Detect objects from the camera frame
+                # 1. Detect objects from the camera frame
                 r_cube, r_cont = self.detect_and_draw(frame, mask_red,  "Red")
                 b_cube, b_cont = self.detect_and_draw(frame, mask_blue, "Blue")
 
@@ -551,18 +568,27 @@ def index():
 def chat():
     global brain_node, chat_history
 
-    user_msg = request.json.get("message", "").lower().strip()
+    body = request.get_json(silent=True)
+    if not body or "message" not in body:
+        return jsonify({"error": "Body must be JSON with a 'message' field."}), 400
 
-    # ── Fast local responses (no AI needed, no quota used) ──────────────────
+    original_msg = str(body["message"]).strip()
+    user_msg = original_msg.lower()
+
+    if not original_msg:
+        return jsonify({"error": "The 'message' field must not be empty."}), 400
+
+    # ── Fast local responses (Telemetry formatted beautifully for HTML) ─────────
+    # ── Fast local responses (Plain Text Formatting) ─────────
     if "status" in user_msg:
         hw    = "CONNECTED" if brain_node.mc else "OFFLINE"
         grip  = "OPEN" if brain_node.gripper_open else "CLOSED"
         reply = (
             f"📊 SYSTEM TELEMETRY\n"
-            f"- Hardware : {hw}\n"
-            f"- Uptime   : {_uptime_str(brain_node)}\n"
-            f"- Gripper  : {grip}\n"
-            f"- Busy     : {'YES' if brain_node.is_busy else 'NO'}"
+            f"- Hardware: {hw}\n"
+            f"- Uptime: {_uptime_str(brain_node)}\n"
+            f"- Gripper: {grip}\n"
+            f"- Busy: {'YES' if brain_node.is_busy else 'NO'}"
         )
         return jsonify({"reply": reply})
 
@@ -570,18 +596,17 @@ def chat():
         c     = brain_node.current_coords
         reply = (
             f"📍 REAL-TIME COORDINATES\n"
-            f"- X : {c['X']} mm\n"
-            f"- Y : {c['Y']} mm\n"
-            f"- Z : {c['Z']} mm"
+            f"- X: {c['X']} mm\n"
+            f"- Y: {c['Y']} mm\n"
+            f"- Z: {c['Z']} mm"
         )
         return jsonify({"reply": reply})
 
     elif "joint" in user_msg:
         ja    = brain_node.current_angles
-        lines = "\n".join([f"  - {k} : {v}°" for k, v in ja.items()])
+        lines = "\n".join([f"- {k} : {v}°" for k, v in ja.items()])
         reply = f"🦾 JOINT CONFIGURATION\n{lines}"
         return jsonify({"reply": reply})
-
     # ── Groq AI for everything else ──────────────────────────────────────────
     try:
         # Build message list (OpenAI format that Groq uses)
@@ -589,11 +614,10 @@ def chat():
 
         # Include last 10 exchanges so the AI has memory
         for entry in chat_history[-10:]:
-            role = "user" if entry["role"] == "user" else "assistant"
-            messages.append({"role": role, "content": entry["parts"][0]["text"]})
+            messages.append(entry)
 
         # Add the current user message
-        messages.append({"role": "user", "content": user_msg})
+        messages.append({"role": "user", "content": original_msg})
 
         payload = {
             "model":       GROQ_MODEL,
@@ -614,14 +638,14 @@ def chat():
             reply_text = data["choices"][0]["message"]["content"]
 
             # Save to history so memory works across turns
-            chat_history.append({"role": "user",  "parts": [{"text": user_msg}]})
-            chat_history.append({"role": "model", "parts": [{"text": reply_text}]})
+            chat_history.append({"role": "user", "content": original_msg})
+            chat_history.append({"role": "assistant", "content": reply_text})
 
             # Keep history from growing forever (last 20 messages)
             if len(chat_history) > 20:
                 chat_history = chat_history[-20:]
 
-            reply = f"🤖 NEOFLUX AI:\n\n{reply_text}"
+            reply = f"<strong>🤖 NEOFLUX AI:</strong><br><br>{reply_text}"
 
         elif data.get("error", {}).get("code") == 429:
             print(f"\n⚠️  GROQ RATE LIMIT HIT: {data}\n")
@@ -673,9 +697,19 @@ def main(args=None):
         rclpy.spin(brain_node)
     finally:
         brain_node.camera_running = False
-        GPIO.cleanup()
+        # Cleanly shut down the Arduino serial port so it doesn't stay stuck suctioning
+        if brain_node.gripper_serial:
+            brain_node.gripper_serial.write(b'r')  # ensure safe release
+            brain_node.gripper_serial.close()
         rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()
+           
+       
+                    
+      
+
+
+           
+  
