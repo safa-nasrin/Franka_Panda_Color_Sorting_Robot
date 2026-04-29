@@ -1,3 +1,7 @@
+<img width="1695" height="928" alt="Pick and Place" src="https://github.com/user-attachments/assets/df93e4e1-1554-4dcc-87a1-91ff8766eb7c" />
+
+
+
 ## 🔌 Hardware Connection & Wiring (MyCobot 280 Pi)
 
 The main control software runs directly on the Raspberry Pi built into the base of the MyCobot. Before running any setup scripts, you must access the Pi's terminal.
